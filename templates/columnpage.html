@@ -1,0 +1,172 @@
+<!-- Template page: offers three sections to visualize a 3 steps workflow.-->
+
+{% extends "masterPage.html" %}
+
+{% block content %}
+<div class="row">
+        <!-- Left Rail -->
+        <div class="col-xl-3 col-md-4">
+            <div class="section" >
+                <div class="panel panel--loose panel--raised base-margin-bottom">
+                    <h2 class="subtitle">Step 1: Choose organization and network </h2>
+                        <div class="section"> 
+                                <form action="/select_organization_network" method="POST" >
+                                    <div class="form-group base-margin-bottom">
+                                        <div class="form-group__text select">
+                                                <select name="organization_id" id='organization_id' required>
+                                                    <option disabled selected hidden value="0">Please choose...</option>
+                                                    {% for org in organizations %}<option value="{{org.id}}" {% if selected_organization.id == org.id %} selected {% endif %}>{{org.name}} (ID:{{org.id}})</option>{% endfor %}
+                                                </select>
+                                            <label for="organization_id">Organization*</label>
+                                        </div>
+                                    </div>
+                                    <!--Network fields-->
+                                    <div id="network_select" class="network-select" {% if selected_organization == [] %} hidden {% endif %} >
+                                        <div class="form-group base-margin-bottom">
+                                            <div class="form-group__text select">
+                                                <select name="network_id" id='network_id' class='networks'>
+                                                    <option disabled selected hidden value="0">Please choose...</option>
+                                                    {% for network in networks %}
+                                                        <option value="{{network['id']}}" {% if selected_network.id == network['id'] %} selected {% endif %}>{{network['name']}} (ID:{{network['id']}})</option>                                                      
+                                                    {% endfor %}
+                                                </select>
+                                                <label for="network_id">Network*</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="required-label pull-right">* required fields</span>
+                                    <br>
+                                    <div class="flex-fluid" style="text-align: right;">
+                                        <input name="submit_button" class="btn btn-primary" type="submit" id="submit_netw_org" value="Search" style="display:inline" onclick="loading_network_organization()">
+                                    </div>
+                                    <div class="loader loader--small" aria-label="Loading, please wait..." id="loading_netw_org" style="display:none">
+                                        <div class="wrapper">
+                                            <div class="wheel" style="width:20px;height:20px;"></div>
+                                        </div>
+                                    </div>
+                                </form>
+                        </div> 
+                        
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Rail -->
+        
+            <div class="col-xl-6 col-md-4">
+                <div class="section" {% if selected_network == [] %} hidden {% endif %}>
+                    <div class="panel panel--loose panel--raised base-margin-bottom">
+                        <h2 class="subtitle">Step 2: Select device(s) </h2>
+                            <div class="section">
+                                <form action="/reboot_devices" method="POST" >
+                        
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <label class="checkbox">
+                                                        <input type="checkbox" onClick="toggle(this)" checked>
+                                                        <span class="checkbox__input"></span>
+                                                    </label>
+                                                </th>
+                                                <th>Device</th>
+                                                <th>Model</th>
+                                                <th>Serial Number</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for device in devices %}
+                                            <tr>
+                                                <td>
+                                                    <label class="checkbox">
+                                                        <input type="checkbox" name="serial_number" value="{{device.serial}}" checked>
+                                                        <span class="checkbox__input"></span>
+                                                    </label>
+                                                </td>
+                                                <td>{{device.name}}</td>
+                                                <td>{{device.model}}</td>
+                                                <td>{{device.serial}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                
+                                
+                            </div> 
+                            
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Rail -->
+            <div class="col-xl-3 col-md-4">
+                <div class="section" {% if selected_network == [] %} hidden {% endif %}>
+                    <div class="panel panel--loose panel--raised">
+                        <h2 class="subtitle">Step 3: Choose extra options and reboot selected devices</h2>
+                            <div class="section"> 
+                                    
+                                        <p>Send summary on Webex</p>
+                                        <label class="switch">
+                                            <input type="checkbox" name="summary_true" value="summary_true" checked>
+                                            <span class="slider round"></span>
+                                        </label>
+                                        <br>
+                                        <div class="flex-fluid" style="text-align: right;">
+                                            <input name="submit_button" class="btn btn-primary" type="submit" id="reboot_devices" value="Reboot" style="display:inline" onclick="$('#loader_branch').show();">
+                                        </div>
+                                        <div class="loader loader--small" aria-label="Loading, please wait..." id="loading_netw_org" style="display:none">
+                                            <div class="wrapper">
+                                                <div class="wheel" style="width:20px;height:20px;"></div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    
+                            </div> 
+                            
+                        
+                    </div>
+                </div>
+            
+                <div class="section" >
+                    <div class="section" {% if not rebooted %} hidden {% endif %}>
+                        <div class="panel panel--loose panel--raised base-margin-bottom">
+                            <h2 class="subtitle">Summary</h2>
+                                <div class="section"> 
+                                    {% for device in successfully_rebooted %}
+                                    <div class="toast base-margin-bottom">
+                                        <div class="toast__icon text-success icon-check-outline"></div>
+                                        <div class="toast__body">
+                                            <div class="toast__title">Successfully Rebooted</div>
+                                            <div class="toast__message">We have successfully rebooted the device with serial number: {{ device }} </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    {% for device in failed_to_reboot %}
+                                    <div class="toast base-margin-bottom">
+                                        <div class="toast__icon text-danger icon-error-outline"></div>
+                                        <div class="toast__body">
+                                            <div class="toast__title">Failed to Reboot</div>
+                                            <div class="toast__message">We have failed to reboot the device with serial number: {{ device }} </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+    
+</div>
+{%  endblock %}
+
+{% block script %}
+<script>
+    function toggle(source) {
+        checkboxes = document.getElementsByName('serial_number');
+        for(var i=0, n=checkboxes.length;i<n;i++) {
+            checkboxes[i].checked = source.checked;
+        }
+    }
+</script>
+{% endblock %}
