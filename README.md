@@ -1,5 +1,9 @@
 # GVE DevNet Meraki Device Bulk Reboot
-An app that can reboot all the selected devices in a Meraki network in case there are issues arising with these devices
+An app that can reboot all the selected Access Points in a Meraki network in case there are issues arising with these devices. 
+
+In a large network, you might have a lot of Access Points. Sometimes, an Access Point might not work correctly, but it's unclear which one exactly is causing the problem. Normally, every Access Point would need to be manually rebooted. 
+
+This simple user interface makes it much faster and easier to reboot all Access Points and fix the problem.
 
 
 ## Contacts
@@ -81,6 +85,8 @@ Then, head over to the URL that is displayed in the terminal output.
 # Screenshots
 
 ![/IMAGES/0image.png](IMAGES/0image.png)
+
+![/IMAGES/0image.png](IMAGES/Meraki_Device_Bulk_Reboot_Screenshot.png)
 
 ### LICENSE
 
